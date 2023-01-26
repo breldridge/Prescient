@@ -60,7 +60,7 @@ def download(branch='HEAD'):
 
     url = 'https://github.com/GridMod/RTS-GMLC.git'
 
-    clone_cmd = 'git clone -n '+url+' '+rtsgmlc_path
+    clone_cmd = 'git clone -n '+url+' "'+rtsgmlc_path+'"'
     ret = os.system(clone_cmd)
     if ret:
         raise Exception('Issue cloning RTS-GMLC repository; see message above.')
