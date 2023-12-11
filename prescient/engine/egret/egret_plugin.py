@@ -59,6 +59,8 @@ def call_solver(solver, instance, options, solver_options, relaxed=False, set_in
     else:
         time = results.solver.wallclock_time
 
+    md.data['results'] = results
+
     return md, time, solver
 
 
@@ -339,8 +341,9 @@ def _solve_deterministic_ruc(deterministic_ruc_data,
                                                    PTDF_matrix_dict=ptdf_manager.PTDF_matrix_dict,
                                                    network_constraints=network_type,
                                                    slack_type=slack_type)
-
-    print("\nPyomo model construction time: %12.2f\n" % (time.time()-st))
+    constr_time = time.time()-st
+    append_data = {'prescient_ruc_construction_time': constr_time}
+    print("\nPyomo model construction time: %12.2f\n" % (constr_time))
 
     if options.ruc_network_type == EngineNetworkType.PTDF:
         # update in case lines were taken out
@@ -352,7 +355,13 @@ def _solve_deterministic_ruc(deterministic_ruc_data,
                                                    pyo_model,
                                                    options,
                                                    options.deterministic_ruc_solver_options)
-        print("Pyomo model solve time:",time.time()-st)
+        solve_time = time.time()-st
+        append_data['prescient_ruc_solve_time'] = solve_time
+        append_data['problem'] = ruc_results.data['results'].problem
+        append_data['solver'] = ruc_results.data['results'].solver.name
+        if hasattr(pyo_results, 'egret_metasolver'):
+            append_data['egret_solver'] = pyo_results.egret_metasolver
+        print("Pyomo model solve time:", solve_time)
     except:
         print("Failed to solve deterministic RUC instance - likely because no feasible solution exists!")        
         output_filename = "bad_ruc.json"
@@ -363,6 +372,7 @@ def _solve_deterministic_ruc(deterministic_ruc_data,
     if options.ruc_network_type == EngineNetworkType.PTDF:
         ptdf_manager.update_active(ruc_results)
 
+    ruc_results.data['results'] = append_data
     return ruc_results
 
 ## create this function with default solver
