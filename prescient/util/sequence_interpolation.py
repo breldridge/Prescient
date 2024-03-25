@@ -173,8 +173,15 @@ class InterpolatingSequence(Sequence):
                                               self.units_at_outer_start,
                                               self.units_per_inner_index,
                                               self.units_per_outer_index)
-        v1 = self.inner_sequence[idx.index_before]
-        v2 = self.inner_sequence[idx.index_after]
+        # Patch in try/excepts so we can do SCED in the last hour of the day
+        try:
+            v1 = self.inner_sequence[idx.index_before]
+        except IndexError:
+            v1 = self.inner_sequence[len(self.inner_sequence)-1]
+        try:
+            v2 = self.inner_sequence[idx.index_after]
+        except:
+            v2 = self.inner_sequence[len(self.inner_sequence)-1]
         return interpolate_between(v1, v2, idx.fraction_between)
 
     def __str__(self) -> str:
