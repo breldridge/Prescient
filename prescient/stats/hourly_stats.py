@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from prescient.engine.abstract_types import OperationsModel, G, L, B, S
     from .operations_stats import OperationsStats
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass #, field
 from datetime import date
 
 @dataclass(init=False)
