@@ -313,6 +313,17 @@ class OperationsStats:
                      (self.observed_virtual_dispatch_levels[g] - self.virtual_gen_cleared_DA[g])*price_RT
                     ) * self.sced_duration_minutes / 60
 
+        # revenue of distributed generators is overwritten here
+        for g in extractor.get_distributed_generators(sced):
+            self.thermal_gen_revenue[g] = 0
+            for b, df in extractor.get_distributed_generator_buses(sced, g):
+                price_DA = self.planning_energy_prices[b]
+                price_RT = self.observed_bus_LMPs[b]
+                self.thermal_gen_revenue[g] +=  \
+                    (self.thermal_gen_cleared_DA[g]*price_DA + \
+                     (self.observed_thermal_dispatch_levels[g] - self.thermal_gen_cleared_DA[g])*price_RT
+                    ) * df * self.sced_duration_minutes / 60
+
         self.thermal_per_reserve_revenue = {}
         self.thermal_total_reserve_revenue = {g : 0.
                                               for g in extractor.get_thermal_generators(sced)}

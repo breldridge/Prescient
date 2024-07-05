@@ -92,6 +92,19 @@ class ScedDataExtractor(BaseScedExtractor):
         return sced.data['elements']['generator'][g]['bus']
 
     @staticmethod
+    def get_distributed_generators(sced: OperationsModel) -> Iterable[G]:
+        for g, attrs in sced.data['elements']['generator'].items():
+            if isinstance(attrs['bus'], dict):
+                yield g
+
+    @staticmethod
+    def get_distributed_generator_buses(sced: OperationsModel, g: G) -> Iterable[B, flaot]:
+        for g, attrs in sced.data['elements']['generator'].items():
+            if isinstance(attrs['bus'], dict):
+                for b, df in attrs['bus'].items():
+                    yield b, df
+
+    @staticmethod
     def is_generator_on(sced: OperationsModel, g: G) -> bool:
         g_dict = sced.data['elements']['generator'][g]
         if 'fixed_commitment' in g_dict:
